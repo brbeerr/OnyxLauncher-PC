@@ -25,6 +25,7 @@ fun NavigationSidebar(currentScreen: Screen, onScreenChange: (Screen) -> Unit) {
         NavItem(Icons.Default.Inventory, "Versions", currentScreen == Screen.VERSIONS) { onScreenChange(Screen.VERSIONS) }
         NavItem(Icons.Default.Extension, "Mods", currentScreen == Screen.MODS) { onScreenChange(Screen.MODS) }
         NavItem(Icons.Default.Person, "Accounts", currentScreen == Screen.ACCOUNTS) { onScreenChange(Screen.ACCOUNTS) }
+        NavItem(Icons.Default.Dns, "Servers", currentScreen == Screen.SERVERS) { onScreenChange(Screen.SERVERS) }
         Spacer(modifier = Modifier.weight(1f))
         NavItem(Icons.Default.Settings, "Settings", currentScreen == Screen.SETTINGS) { onScreenChange(Screen.SETTINGS) }
     }

@@ -7,10 +7,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.onyx.launcher.game.AccountsManager
 import com.onyx.launcher.game.VersionManager
+import com.onyx.launcher.game.multirt.RuntimesManager
 import com.onyx.launcher.ui.screens.*
 import com.onyx.launcher.ui.theme.OnyxTheme
 
-enum class Screen { HOME, VERSIONS, MODS, ACCOUNTS, SETTINGS }
+enum class Screen { HOME, VERSIONS, MODS, ACCOUNTS, SERVERS, SETTINGS }
 
 @Composable
 fun App() {
@@ -18,6 +19,7 @@ fun App() {
         AccountsManager.loadAccounts()
         VersionManager.loadInstalledVersions()
         VersionManager.loadVersionManifest()
+        RuntimesManager.initialize()
     }
     
     OnyxTheme {
@@ -32,6 +34,7 @@ fun App() {
                         Screen.VERSIONS -> VersionsScreen()
                         Screen.MODS -> ModsScreen()
                         Screen.ACCOUNTS -> AccountsScreen()
+                        Screen.SERVERS -> ServersScreen()
                         Screen.SETTINGS -> SettingsScreen()
                     }
                 }

@@ -23,12 +23,18 @@ object PathManager {
     val DIR_CACHE: File by lazy { File(DIR_LAUNCHER, "cache") }
     val DIR_RUNTIME: File by lazy { File(DIR_LAUNCHER, "runtime") }
     val DIR_MODS: File by lazy { File(DIR_GAME, "mods") }
+    val DIR_INSTANCES: File by lazy { File(DIR_GAME, "instances") }
+    val DIR_RESOURCEPACKS: File by lazy { File(DIR_GAME, "resourcepacks") }
+    val DIR_SHADERPACKS: File by lazy { File(DIR_GAME, "shaderpacks") }
+    val DIR_SAVES: File by lazy { File(DIR_GAME, "saves") }
+    val DIR_LOGS: File by lazy { File(DIR_GAME, "logs") }
     val FILE_SETTINGS: File by lazy { File(DIR_LAUNCHER, "settings.json") }
     val FILE_ACCOUNTS: File by lazy { File(DIR_ACCOUNTS, "accounts.json") }
     
     fun initialize() {
         listOf(DIR_LAUNCHER, DIR_GAME, DIR_VERSIONS, DIR_LIBRARIES, DIR_ASSETS, 
-               DIR_ACCOUNTS, DIR_ACCOUNT_SKIN, DIR_CACHE, DIR_RUNTIME, DIR_MODS)
+               DIR_ACCOUNTS, DIR_ACCOUNT_SKIN, DIR_CACHE, DIR_RUNTIME, DIR_MODS,
+               DIR_INSTANCES, DIR_RESOURCEPACKS, DIR_SAVES, DIR_LOGS)
             .forEach { if (!it.exists()) it.mkdirs() }
     }
     
