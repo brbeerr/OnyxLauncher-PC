@@ -2,11 +2,11 @@ package com.onyx.launcher.utils
 
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object Logger {
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+    private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
     
     enum class Level { DEBUG, INFO, WARN, ERROR }
     
@@ -23,7 +23,7 @@ object Logger {
     }
     
     private fun log(level: Level, tag: String, message: String) {
-        val timestamp = dateFormat.format(Date())
+        val timestamp = LocalDateTime.now().format(dateFormatter)
         val logMessage = "[$timestamp] [${level.name}] [$tag] $message"
         if (level == Level.ERROR) System.err.println(logMessage) else println(logMessage)
     }

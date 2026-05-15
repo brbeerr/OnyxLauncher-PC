@@ -22,14 +22,15 @@ jobs:
     
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '8.5'
+    
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
     
     - name: Build with Gradle
-      run: gradle build --no-daemon
+      run: ./gradlew build --no-daemon
     
     - name: Create UberJar
-      run: gradle packageUberJarForCurrentOS --no-daemon
+      run: ./gradlew packageUberJarForCurrentOS --no-daemon
     
     - name: Upload JAR
       uses: actions/upload-artifact@v4
@@ -53,11 +54,12 @@ jobs:
     
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '8.5'
+    
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
     
     - name: Build DEB package
-      run: gradle packageDeb --no-daemon
+      run: ./gradlew packageDeb --no-daemon
     
     - name: Upload Linux DEB
       uses: actions/upload-artifact@v4
@@ -81,17 +83,15 @@ jobs:
     
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '8.5'
     
-    - name: Build EXE package
-      run: gradle packageExe --no-daemon
+    - name: Build MSI installer
+      run: ./gradlew packageMsi --no-daemon
     
-    - name: Upload Windows EXE
+    - name: Upload Windows MSI
       uses: actions/upload-artifact@v4
       with:
-        name: OnyxLauncher-Windows-exe
-        path: app/build/compose/binaries/main/exe/*.exe
+        name: OnyxLauncher-Windows-msi
+        path: app/build/compose/binaries/main/msi/*.msi
         if-no-files-found: warn
 
   build-macos:
@@ -109,11 +109,9 @@ jobs:
     
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '8.5'
     
     - name: Build DMG package
-      run: gradle packageDmg --no-daemon
+      run: ./gradlew packageDmg --no-daemon
     
     - name: Upload macOS DMG
       uses: actions/upload-artifact@v4

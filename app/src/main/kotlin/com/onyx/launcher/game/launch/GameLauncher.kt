@@ -63,7 +63,7 @@ object GameLauncher {
         cmd.add("-cp"); cmd.add(cp.joinToString(if (System.getProperty("os.name").lowercase().contains("win")) ";" else ":"))
         cmd.add(vj.mainClass)
         val repl = mapOf("\${auth_player_name}" to acc.username, "\${version_name}" to vid, "\${game_directory}" to PathManager.DIR_GAME.absolutePath, "\${assets_root}" to PathManager.DIR_ASSETS.absolutePath, "\${assets_index_name}" to (vj.assetIndex?.id ?: vj.assets ?: "legacy"), "\${auth_uuid}" to acc.profileId, "\${auth_access_token}" to acc.accessToken, "\${user_type}" to if (acc.isMicrosoftAccount()) "msa" else "legacy", "\${version_type}" to (vj.type ?: "release"))
-        vj.arguments?.game?.forEach { var a = it; repl.forEach { (k, v) -> a = a.replace(k, v) }; cmd.add(a) }
+        vj.arguments?.getGameArgs()?.forEach { var a = it; repl.forEach { (k, v) -> a = a.replace(k, v) }; cmd.add(a) }
         vj.minecraftArguments?.let { var a = it; repl.forEach { (k, v) -> a = a.replace(k, v) }; cmd.addAll(a.split(" ")) }
         return cmd
     }

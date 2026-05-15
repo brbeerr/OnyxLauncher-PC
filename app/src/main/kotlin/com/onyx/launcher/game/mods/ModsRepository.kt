@@ -68,7 +68,7 @@ object ModsRepository {
     
     fun getInstalledMods(dir: File = PathManager.DIR_MODS): List<InstalledMod> {
         if (!dir.exists()) return emptyList()
-        return dir.listFiles()?.filter { it.extension == "jar" }?.map { InstalledMod(it, it.nameWithoutExtension, !it.name.endsWith(".disabled")) }?.sortedBy { it.name.lowercase() } ?: emptyList()
+        return dir.listFiles()?.filter { it.name.endsWith(".jar") || it.name.endsWith(".jar.disabled") }?.map { InstalledMod(it, it.name.removeSuffix(".disabled").removeSuffix(".jar"), !it.name.endsWith(".disabled")) }?.sortedBy { it.name.lowercase() } ?: emptyList()
     }
     
     fun toggleMod(mod: InstalledMod) = mod.file.renameTo(File(mod.file.parentFile, if (mod.enabled) "${mod.file.name}.disabled" else mod.file.name.removeSuffix(".disabled")))
