@@ -2,6 +2,7 @@ package com.onyx.launcher.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.*
 
 enum class VersionType(val id: String) {
     RELEASE("release"), SNAPSHOT("snapshot"), OLD_BETA("old_beta"), OLD_ALPHA("old_alpha");
@@ -28,7 +29,21 @@ data class VersionJson(
     val javaVersion: JavaVersion? = null, val inheritsFrom: String? = null
 )
 
-@Serializable data class Arguments(val game: List<String>? = null, val jvm: List<String>? = null)
+@Serializable data class Arguments(val game: List<JsonElement>? = null, val jvm: List<JsonElement>? = null) {
+    fun getGameArgs(): List<String> = game?.mapNotNull { elem ->
+        when {
+            elem is JsonPrimitive && elem.isString -> elem.content
+            else -> null
+        }
+    } ?: emptyList()
+    
+    fun getJvmArgs(): List<String> = jvm?.mapNotNull { elem ->
+        when {
+            elem is JsonPrimitive && elem.isString -> elem.content
+            else -> null
+        }
+    } ?: emptyList()
+}
 @Serializable data class AssetIndex(val id: String, val sha1: String, val size: Long, val url: String)
 @Serializable data class Downloads(val client: DownloadInfo? = null, val server: DownloadInfo? = null)
 @Serializable data class DownloadInfo(val sha1: String, val size: Long, val url: String)

@@ -12,6 +12,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
+import java.util.concurrent.atomic.AtomicInteger
 
 data class DownloadProgress(val message: String = "", val progress: Float = 0f)
 
@@ -46,13 +47,14 @@ class GameDownloader {
     
     private suspend fun downloadLibraries(vj: VersionJson) = coroutineScope {
         val libs = vj.libraries.filter { isAllowed(it) }
-        var done = 0
+        val done = AtomicInteger(0)
         libs.map { lib -> async {
             lib.downloads?.artifact?.let { a ->
                 val f = File(PathManager.DIR_LIBRARIES, a.path)
                 if (!f.exists()) LauncherHttpClient.downloadFileWithHash(a.url, f, a.sha1)
             }
-            synchronized(this@GameDownloader) { done++; updateProgress("Libraries ($done/${libs.size})", 0.2f + done.toFloat() / libs.size * 0.4f) }
+            val current = done.incrementAndGet()
+            updateProgress("Libraries ($current/${libs.size})", 0.2f + current.toFloat() / libs.size * 0.4f)
         }}.awaitAll()
     }
     
@@ -62,13 +64,14 @@ class GameDownloader {
         if (!indexFile.exists()) LauncherHttpClient.downloadFileWithHash(ai.url, indexFile, ai.sha1)
         val objs = json.parseToJsonElement(indexFile.readText()).jsonObject["objects"]?.jsonObject ?: return@coroutineScope
         val assets = objs.entries.toList()
-        var done = 0
+        val done = AtomicInteger(0)
         assets.chunked(50).forEach { chunk ->
             chunk.map { (_, info) -> async {
                 val hash = info.jsonObject["hash"]!!.jsonPrimitive.content
                 val f = File(PathManager.DIR_ASSETS, "objects/${hash.take(2)}/$hash")
                 if (!f.exists()) LauncherHttpClient.downloadFileWithHash("https://resources.download.minecraft.net/${hash.take(2)}/$hash", f, hash)
-                synchronized(this@GameDownloader) { done++; if (done % 100 == 0) updateProgress("Assets ($done/${assets.size})", 0.6f + done.toFloat() / assets.size * 0.4f) }
+                val current = done.incrementAndGet()
+                if (current % 100 == 0) updateProgress("Assets ($current/${assets.size})", 0.6f + current.toFloat() / assets.size * 0.4f)
             }}.awaitAll()
         }
     }
