@@ -1,0 +1,93 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.5'
+    
+    - name: Build with Gradle
+      run: gradle build --no-daemon
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-output
+        path: app/build/libs/
+        if-no-files-found: warn
+
+  build-distributions:
+    needs: build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.5'
+    
+    - name: Build distribution (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: gradle packageDeb --no-daemon
+    
+    - name: Build distribution (Windows)
+      if: matrix.os == 'windows-latest'
+      run: gradle packageMsi --no-daemon
+    
+    - name: Build distribution (macOS)
+      if: matrix.os == 'macos-latest'
+      run: gradle packageDmg --no-daemon
+    
+    - name: Upload Linux artifact
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: OnyxLauncher-Linux
+        path: app/build/compose/binaries/main/deb/*.deb
+        if-no-files-found: warn
+    
+    - name: Upload Windows artifact
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: OnyxLauncher-Windows
+        path: app/build/compose/binaries/main/msi/*.msi
+        if-no-files-found: warn
+    
+    - name: Upload macOS artifact
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: OnyxLauncher-macOS
+        path: app/build/compose/binaries/main/dmg/*.dmg
+        if-no-files-found: warn
