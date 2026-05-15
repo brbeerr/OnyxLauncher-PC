@@ -23,8 +23,8 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
     
-    - name: Make gradlew executable
-      run: chmod +x ./gradlew
+    - name: Generate Gradle Wrapper
+      run: gradle wrapper --gradle-version 8.5
     
     - name: Build with Gradle
       run: ./gradlew build --no-daemon
@@ -55,8 +55,8 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
     
-    - name: Make gradlew executable
-      run: chmod +x ./gradlew
+    - name: Generate Gradle Wrapper
+      run: gradle wrapper --gradle-version 8.5
     
     - name: Build DEB package
       run: ./gradlew packageDeb --no-daemon
@@ -84,6 +84,9 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
     
+    - name: Generate Gradle Wrapper
+      run: gradle wrapper --gradle-version 8.5
+    
     - name: Build MSI installer
       run: ./gradlew packageMsi --no-daemon
     
@@ -109,6 +112,9 @@ jobs:
     
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
+    
+    - name: Generate Gradle Wrapper
+      run: gradle wrapper --gradle-version 8.5
     
     - name: Build DMG package
       run: ./gradlew packageDmg --no-daemon
