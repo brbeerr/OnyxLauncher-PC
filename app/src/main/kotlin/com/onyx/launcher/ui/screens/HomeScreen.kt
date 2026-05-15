@@ -39,7 +39,7 @@ fun HomeScreen() {
                 Text(currentAccount?.username ?: "Guest", fontSize = 28.sp, fontWeight = FontWeight.Bold)
             }
             Box(modifier = Modifier.size(56.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer), contentAlignment = Alignment.Center) {
-                Text((currentAccount?.username?.firstOrNull() ?: "?").uppercase(), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                Text((currentAccount?.username?.firstOrNull()?.uppercaseChar()?.toString() ?: "?"), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
             }
         }
         

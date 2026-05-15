@@ -6,6 +6,7 @@ import com.onyx.launcher.data.SkinModelType
 import com.onyx.launcher.network.LauncherHttpClient
 import com.onyx.launcher.utils.Logger
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.delay
@@ -30,7 +31,13 @@ object MicrosoftAuth {
     enum class AuthStatus { GETTING_DEVICE_CODE, WAITING_FOR_USER, GETTING_ACCESS_TOKEN, GETTING_XBL_TOKEN, GETTING_XSTS_TOKEN, AUTHENTICATE_MINECRAFT, VERIFY_GAME_OWNERSHIP, GETTING_PLAYER_PROFILE, COMPLETE }
     
     suspend fun getDeviceCode(): DeviceCodeResponse {
-        val resp = LauncherHttpClient.client.submitForm("$MS_AUTH_URL/consumers/oauth2/v2.0/devicecode", Parameters.build { append("client_id", oauthClientId); append("scope", "XboxLive.signin offline_access") }).bodyAsText()
+        val resp = LauncherHttpClient.client.submitForm(
+            url = "$MS_AUTH_URL/consumers/oauth2/v2.0/devicecode",
+            formParameters = Parameters.build { 
+                append("client_id", oauthClientId)
+                append("scope", "XboxLive.signin offline_access") 
+            }
+        ).bodyAsText()
         return json.decodeFromString<DeviceCodeResponse>(resp)
     }
     
@@ -69,7 +76,14 @@ object MicrosoftAuth {
         while (System.currentTimeMillis() < expire) {
             delay(interval)
             try {
-                val resp = LauncherHttpClient.client.submitForm("$MS_AUTH_URL/consumers/oauth2/v2.0/token", Parameters.build { append("grant_type", "urn:ietf:params:oauth:grant-type:device_code"); append("device_code", dc.deviceCode); append("client_id", oauthClientId) }).bodyAsText()
+                val resp = LauncherHttpClient.client.submitForm(
+                    url = "$MS_AUTH_URL/consumers/oauth2/v2.0/token",
+                    formParameters = Parameters.build { 
+                        append("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
+                        append("device_code", dc.deviceCode)
+                        append("client_id", oauthClientId) 
+                    }
+                ).bodyAsText()
                 val j = json.parseToJsonElement(resp).jsonObject
                 if (j["token_type"]?.jsonPrimitive?.content == "Bearer") return Pair(j["access_token"]!!.jsonPrimitive.content, j["refresh_token"]!!.jsonPrimitive.content)
             } catch (e: Exception) { }

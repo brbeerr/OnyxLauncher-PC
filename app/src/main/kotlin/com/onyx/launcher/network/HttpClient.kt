@@ -6,12 +6,13 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.io.FileOutputStream
+import java.net.URL
 
 object LauncherHttpClient {
     val json = Json { ignoreUnknownKeys = true; isLenient = true; prettyPrint = true; encodeDefaults = true }
@@ -30,20 +31,27 @@ object LauncherHttpClient {
     suspend fun downloadFile(url: String, dest: File, onProgress: ((Long, Long) -> Unit)? = null): Boolean = withContext(Dispatchers.IO) {
         try {
             dest.parentFile?.mkdirs()
-            client.prepareGet(url).execute { resp ->
-                val total = resp.contentLength() ?: -1L
-                var downloaded = 0L
-                val channel = resp.bodyAsChannel()
-                FileOutputStream(dest).use { out ->
-                    val buf = ByteArray(8192)
-                    while (!channel.isClosedForRead) {
-                        val read = channel.readAvailable(buf)
-                        if (read > 0) { out.write(buf, 0, read); downloaded += read; onProgress?.invoke(downloaded, total) }
+            val connection = URL(url).openConnection()
+            connection.connectTimeout = 30000
+            connection.readTimeout = 60000
+            val total = connection.contentLengthLong
+            var downloaded = 0L
+            connection.getInputStream().use { input ->
+                dest.outputStream().use { output ->
+                    val buffer = ByteArray(8192)
+                    var bytesRead: Int
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
+                        downloaded += bytesRead
+                        onProgress?.invoke(downloaded, total)
                     }
                 }
             }
             true
-        } catch (e: Exception) { false }
+        } catch (e: Exception) { 
+            e.printStackTrace()
+            false 
+        }
     }
     
     suspend fun downloadFileWithHash(url: String, dest: File, expectedSha1: String?, onProgress: ((Long, Long) -> Unit)? = null): Boolean = withContext(Dispatchers.IO) {
